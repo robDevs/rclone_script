@@ -34,7 +34,7 @@ dialog \
 	--no-collapse \
 	--cr-wrap \
 	--yesno \
-		"\nThis script will ${RED}uninstall RCLONE_SCRIPT${NORMAL}. If you do this, your savefiles will no longer be synchronized! All changes made by RCLONE_SCRIPT installer will be reverted. This includes removal of RCLONE, PNGVIEW and IMAGEMAGICK. Also, all configuration changes will be undone. Your local savefiles and savestates will be moved to the ROMS directory again.\nYour remote savefiles and statefiles will ${YELLOW}not${NORMAL} be removed.\n\nAre you sure you wish to continue?" \
+		"\nThis script will ${RED}uninstall RCLONE_SCRIPT${NORMAL}. If you do this, your savefiles will no longer be synchronized! All changes made by RCLONE_SCRIPT installer will be reverted. This includes removal of RCLONE. Also, all configuration changes will be undone. Your local savefiles and savestates will be moved to the ROMS directory again.\nYour remote savefiles and statefiles will ${YELLOW}not${NORMAL} be removed.\n\nAre you sure you wish to continue?" \
 	20 90 2>&1 > /dev/tty \
     || exit
 	
@@ -99,23 +99,19 @@ function initSteps ()
 	steps[1]="1. RCLONE"
 	steps[2]="	1a. Remove RCLONE configuration			[ waiting...  ]"
 	steps[3]="	1b. Remove RCLONE binary			[ waiting...  ]"
-	steps[4]="2. PNGVIEW"
-	steps[5]="	2a. Remove PNGVIEW binary			[ waiting...  ]"
-	steps[6]="3. IMAGEMAGICK"
-	steps[7]="	3a. apt-get remove IMAGEMAGICK			[ waiting...  ]"
-	steps[8]="4. RCLONE_SCRIPT"
-	steps[9]="	4a. Remove RCLONE_SCRIPT files			[ waiting...  ]"
-	steps[10]="	4b. Remove RCLONE_SCRIPT menu item		[ waiting...  ]"
-	steps[11]="5. RUNCOMMAND"
-	steps[12]="	5a. Remove call from RUNCOMMAND-ONSTART		[ waiting...  ]"
-	steps[13]="	5b. Remove call from RUNCOMMAND-ONEND		[ waiting...  ]"
-	steps[14]="6. Local SAVEFILE directory"
-	steps[15]="	6a. Move savefiles to default			[ waiting...  ]"
-	steps[16]="	6b. Remove local SAVEFILE directory		[ waiting...  ]"
-	steps[17]="7. Configure RETROARCH"
-	steps[18]="	7a. Reset local SAVEFILE directories		[ waiting...  ]"
-	steps[19]="8 Finalizing"
-	steps[20]="	8a. Remove UNINSTALL script			[ waiting...  ]"
+	steps[4]="2. RCLONE_SCRIPT"
+	steps[5]="	2a. Remove RCLONE_SCRIPT files			[ waiting...  ]"
+	steps[6]="	2b. Remove RCLONE_SCRIPT menu item		[ waiting...  ]"
+	steps[7]="3. RUNCOMMAND"
+	steps[8]="	3a. Remove call from RUNCOMMAND-ONSTART		[ waiting...  ]"
+	steps[9]="	3b. Remove call from RUNCOMMAND-ONEND		[ waiting...  ]"
+	steps[10]="4. Local SAVEFILE directory"
+	steps[11]="	4a. Move savefiles to default			[ waiting...  ]"
+	steps[12]="	4b. Remove local SAVEFILE directory		[ waiting...  ]"
+	steps[13]="5. Configure RETROARCH"
+	steps[14]="	5a. Reset local SAVEFILE directories		[ waiting...  ]"
+	steps[15]="6 Finalizing"
+	steps[16]="	6a. Remove UNINSTALL script			[ waiting...  ]"
 }
 
 # Update item of $STEPS() and show updated progress dialog
@@ -196,13 +192,11 @@ function uninstaller ()
 	saveRemote
 	
 	1RCLONE
-	2PNGVIEW
-	3IMAGEMAGICK
-	4RCLONE_SCRIPT
-	5RUNCOMMAND
-	6LocalSAVEFILEDirectory
-	7RetroArch
-	8Finalize
+	2RCLONE_SCRIPT
+	3RUNCOMMAND
+	4LocalSAVEFILEDirectory
+	5RetroArch
+	6Finalize
 	
 	dialogShowSummary
 }
@@ -268,89 +262,34 @@ function 1RCLONE ()
 	printf "$(date +%FT%T%:z):\t1RCLONE\tEND\n" >> "${logfile}"
 }
 
-function 2PNGVIEW ()
+function 2RCLONE_SCRIPT ()
 {
-	printf "$(date +%FT%T%:z):\t2PNGVIEW\tSTART\n" >> "${logfile}"
-	
-# 2a. Remove PNGVIEW binary
-	printf "$(date +%FT%T%:z):\t2aPNGVIEWbinary\tSTART\n" >> "${logfile}"
-	updateStep "2a" "in progress" 16
-	
-	if [ -f /usr/bin/pngview ]
-	then
-		{ #try
-			sudo rm /usr/bin/pngview >> "${logfile}" &&
-			sudo rm /usr/lib/libraspidmx.so.1 >> "${logfile}" &&
-			printf "$(date +%FT%T%:z):\t2aPNGVIEWbinary\tDONE\n" >> "${logfile}" &&
-			updateStep "2a" "done" 24
-		} || { # catch
-			printf "$(date +%FT%T%:z):\t2aPNGVIEWbinary\tERROR\n" >> "${logfile}" &&
-			updateStep "2a" "failed" 16 &&
-			exit
-		}
-	else
-		printf "$(date +%FT%T%:z):\t2aPNGVIEWbinary\tNOT FOUND\n" >> "${logfile}" &&
-		updateStep "2a" "not found" 24
-	fi
-	
-	printf "$(date +%FT%T%:z):\t2PNGVIEW\tDONE\n" >> "${logfile}"
-}
+	printf "$(date +%FT%T%:z):\t2RCLONE_SCRIPT\tSTART\n" >> "${logfile}"
 
-function 3IMAGEMAGICK ()
-{
-	printf "$(date +%FT%T%:z):\t3IMAGEMAGICK\tSTART\n" >> "${logfile}"
-	
-# 3a. Remove IMAGEMAGICK binary
-	printf "$(date +%FT%T%:z):\t3aIMAGEMAGICKbinary\tSTART\n" >> "${logfile}"
-	updateStep "3a" "in progress" 24
-	
-	if [ -f /usr/bin/convert ]
-	then
-		{ # try
-			sudo apt-get --yes remove imagemagick* >> "${logfile}" &&
-			printf "$(date +%FT%T%:z):\t3aIMAGEMAGICKbinary\tDONE\n" >> "${logfile}" &&
-			updateStep "3a" "done" 32
-		} || { # catch
-			printf "$(date +%FT%T%:z):\t3aIMAGEMAGICKbinary\tERROR\n" >> "${logfile}" &&
-			updateStep "3a" "failed" 24 &&
-			exit
-		}
-	else
-		printf "$(date +%FT%T%:z):\t3aPIMAGEMAGICKbinary\tNOT FOUND\n" >> "${logfile}"
-		updateStep "3a" "not found" 32
-	fi
-	
-	printf "$(date +%FT%T%:z):\t3IMAGEMAGICK\tDONE\n" >> "${logfile}"
-}
-
-function 4RCLONE_SCRIPT ()
-{
-	printf "$(date +%FT%T%:z):\t4RCLONE_SCRIPT\tSTART\n" >> "${logfile}"
-
-# 4a. Remove RCLONE_SCRIPT
-	printf "$(date +%FT%T%:z):\t4aRCLONE_SCRIPTfiles\tSTART\n" >> "${logfile}"
-	updateStep "4a" "in progress" 32
+# 2a. Remove RCLONE_SCRIPT
+	printf "$(date +%FT%T%:z):\t2aRCLONE_SCRIPTfiles\tSTART\n" >> "${logfile}"
+	updateStep "2a" "in progress" 32
 	
 	if [ -f ~/scripts/rclone_script/rclone_script.sh ]
 	then
 		{ # try
 			sudo rm -f ~/scripts/rclone_script/rclone_script-install.* >> "${logfile}" &&
 			sudo rm -f ~/scripts/rclone_script/rclone_script.* >> "${logfile}" &&
-			printf "$(date +%FT%T%:z):\t4aRCLONE_SCRIPTfiles\tDONE\n" >> "${logfile}" &&
-			updateStep "4a" "done" 40
+			printf "$(date +%FT%T%:z):\t2aRCLONE_SCRIPTfiles\tDONE\n" >> "${logfile}" &&
+			updateStep "2a" "done" 40
 		} || { # catch
-			printf "$(date +%FT%T%:z):\t4aRCLONE_SCRIPTfiles\tERROR\n" >> "${logfile}" &&
-			updateStep "4a" "failed" 32 &&
+			printf "$(date +%FT%T%:z):\t2aRCLONE_SCRIPTfiles\tERROR\n" >> "${logfile}" &&
+			updateStep "2a" "failed" 32 &&
 			exit
 		}
 	else
-		printf "$(date +%FT%T%:z):\t4aRCLONE_SCRIPTfiles\tNOT FOUND\n" >> "${logfile}"
-		updateStep "4a" "not found" 40
+		printf "$(date +%FT%T%:z):\t2aRCLONE_SCRIPTfiles\tNOT FOUND\n" >> "${logfile}"
+		updateStep "2a" "not found" 40
 	fi
 	
-# 4b. Remove RCLONE_SCRIPT menu item
-	printf "$(date +%FT%T%:z):\t4bRCLONE_SCRIPTMenuItem\tSTART\n" >> "${logfile}"
-	updateStep "4b" "in progress" 40
+# 2b. Remove RCLONE_SCRIPT menu item
+	printf "$(date +%FT%T%:z):\t2bRCLONE_SCRIPTMenuItem\tSTART\n" >> "${logfile}"
+	updateStep "2b" "in progress" 40
 	
 	local found=0
 		
@@ -358,93 +297,93 @@ function 4RCLONE_SCRIPT ()
 	then
 		found=$(($found + 1))
 		
-		printf "$(date +%FT%T%:z):\t4bRCLONE_SCRIPTMenuItem\tFOUND\n" >> "${logfile}"
+		printf "$(date +%FT%T%:z):\t2bRCLONE_SCRIPTMenuItem\tFOUND\n" >> "${logfile}"
 		
 		xmlstarlet ed \
 			--inplace \
 			--delete "//game[path='./rclone_script-redirect.sh']" \
 			~/.emulationstation/gamelists/retropie/gamelist.xml
 			
-		printf "$(date +%FT%T%:z):\t4bRCLONE_SCRIPTMenuItem\tREMOVED\n" >> "${logfile}"
+		printf "$(date +%FT%T%:z):\t2bRCLONE_SCRIPTMenuItem\tREMOVED\n" >> "${logfile}"
 	else
-		printf "$(date +%FT%T%:z):\t4bRCLONE_SCRIPTMenuItem\tNOT FOUND\n" >> "${logfile}"
+		printf "$(date +%FT%T%:z):\t2bRCLONE_SCRIPTMenuItem\tNOT FOUND\n" >> "${logfile}"
 	fi
 	
 	if [ -f ~/RetroPie/retropiemenu/rclone_script-redirect.sh ]
 	then
 		found=$(($found + 1))
 		
-		printf "$(date +%FT%T%:z):\t4bRCLONE_SCRIPTMenuItemScript\tFOUND\n" >> "${logfile}"
+		printf "$(date +%FT%T%:z):\t2bRCLONE_SCRIPTMenuItemScript\tFOUND\n" >> "${logfile}"
 		
 		sudo rm ~/RetroPie/retropiemenu/rclone_script-redirect.sh >> "${logfile}"
 		sudo rm ~/scripts/rclone_script/rclone_script-menu.sh >> "${logfile}"
 		
-		printf "$(date +%FT%T%:z):\t4bRCLONE_SCRIPTMenuItemScript\tREMOVED\n" >> "${logfile}"
+		printf "$(date +%FT%T%:z):\t2bRCLONE_SCRIPTMenuItemScript\tREMOVED\n" >> "${logfile}"
 	else
-		printf "$(date +%FT%T%:z):\t4bRCLONE_SCRIPTMenuItemScript\tNOT FOUND\n" >> "${logfile}"
+		printf "$(date +%FT%T%:z):\t2bRCLONE_SCRIPTMenuItemScript\tNOT FOUND\n" >> "${logfile}"
 	fi
 	
 	case $found in
-		0) updateStep "4b" "not found" 48  ;;
-		1) updateStep "4b" "done" 48  ;;
-		2) updateStep "4b" "done" 48  ;;
+		0) updateStep "2b" "not found" 48  ;;
+		1) updateStep "2b" "done" 48  ;;
+		2) updateStep "2b" "done" 48  ;;
 	esac
 	
-	printf "$(date +%FT%T%:z):\t4RCLONE_SCRIPT\tDONE\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t2RCLONE_SCRIPT\tDONE\n" >> "${logfile}"
 }
 
-function 5RUNCOMMAND ()
+function 3RUNCOMMAND ()
 {
-	printf "$(date +%FT%T%:z):\t5RUNCOMMAND\tSTART\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t3RUNCOMMAND\tSTART\n" >> "${logfile}"
 	
-# 5a. Remove call from RUNCOMMAND-ONSTART
-	printf "$(date +%FT%T%:z):\t5RUNCOMMAND-ONSTART\tSTART\n" >> "${logfile}"
-	updateStep "5a" "in progress" 48
+# 3a. Remove call from RUNCOMMAND-ONSTART
+	printf "$(date +%FT%T%:z):\t3RUNCOMMAND-ONSTART\tSTART\n" >> "${logfile}"
+	updateStep "3a" "in progress" 48
 	
 	if [[ $(grep -c "~/scripts/rclone_script/rclone_script.sh" /opt/retropie/configs/all/runcommand-onstart.sh) -gt 0 ]]
 	then
 	{ #try
 		sed -i "/~\/scripts\/rclone_script\/rclone_script.sh /d" /opt/retropie/configs/all/runcommand-onstart.sh &&
-		printf "$(date +%FT%T%:z):\t5RUNCOMMAND-ONSTART\tDONE\n" >> "${logfile}" &&
-		updateStep "5a" "done" 56
+		printf "$(date +%FT%T%:z):\t3RUNCOMMAND-ONSTART\tDONE\n" >> "${logfile}" &&
+		updateStep "3a" "done" 56
 	} || { # catch
-		printf "$(date +%FT%T%:z):\t5RUNCOMMAND-ONSTART\tERROR\n" >> "${logfile}" &&
-		updateStep "5a" "failed" 48
+		printf "$(date +%FT%T%:z):\t3RUNCOMMAND-ONSTART\tERROR\n" >> "${logfile}" &&
+		updateStep "3a" "failed" 48
 	}
 	else
-		printf "$(date +%FT%T%:z):\t5RUNCOMMAND-ONSTART\tNOT FOUND\n" >> "${logfile}"
-		updateStep "5a" "not found" 56
+		printf "$(date +%FT%T%:z):\t3RUNCOMMAND-ONSTART\tNOT FOUND\n" >> "${logfile}"
+		updateStep "3a" "not found" 56
 	fi
 	
-# 5b. Remove call from RUNCOMMAND-ONEND
-	printf "$(date +%FT%T%:z):\t5RUNCOMMAND-ONEND\tSTART\n" >> "${logfile}"
-	updateStep "5b" "in progress" 56
+# 3b. Remove call from RUNCOMMAND-ONEND
+	printf "$(date +%FT%T%:z):\t3RUNCOMMAND-ONEND\tSTART\n" >> "${logfile}"
+	updateStep "3b" "in progress" 56
 	
 	if [[ $(grep -c "~/scripts/rclone_script/rclone_script.sh" /opt/retropie/configs/all/runcommand-onend.sh) -gt 0 ]]
 	then
 		{ #try
 			sed -i "/~\/scripts\/rclone_script\/rclone_script.sh /d" /opt/retropie/configs/all/runcommand-onend.sh &&
-			printf "$(date +%FT%T%:z):\t5RUNCOMMAND-ONEND\tDONE\n" >> "${logfile}" &&
-			updateStep "5b" "done" 64
+			printf "$(date +%FT%T%:z):\t3RUNCOMMAND-ONEND\tDONE\n" >> "${logfile}" &&
+			updateStep "3b" "done" 64
 		} || { # catch
-			printf "$(date +%FT%T%:z):\t5RUNCOMMAND-ONEND\tERROR\n" >> "${logfile}" &&
-			updateStep "5b" "failed" 56
+			printf "$(date +%FT%T%:z):\t3RUNCOMMAND-ONEND\tERROR\n" >> "${logfile}" &&
+			updateStep "3b" "failed" 56
 		}
 	else
-		printf "$(date +%FT%T%:z):\t5RUNCOMMAND-ONEND\tNOT FOUND\n" >> "${logfile}"
-		updateStep "5b" "not found" 64
+		printf "$(date +%FT%T%:z):\t3RUNCOMMAND-ONEND\tNOT FOUND\n" >> "${logfile}"
+		updateStep "3b" "not found" 64
 	fi
 	
-	printf "$(date +%FT%T%:z):\t5RUNCOMMAND\tDONE\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t3RUNCOMMAND\tDONE\n" >> "${logfile}"
 }
 
-function 6LocalSAVEFILEDirectory ()
+function 4LocalSAVEFILEDirectory ()
 {
-	printf "$(date +%FT%T%:z):\t6LocalSAVEFILEDirectory\tSTART\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t4LocalSAVEFILEDirectory\tSTART\n" >> "${logfile}"
 	
-# 6a. Move savefiles to default
-	printf "$(date +%FT%T%:z):\t6a moveFilesToDefault\tSTART\n" >> "${logfile}"
-	updateStep "6a" "in progress" 64
+# 4a. Move savefiles to default
+	printf "$(date +%FT%T%:z):\t4a moveFilesToDefault\tSTART\n" >> "${logfile}"
+	updateStep "4a" "in progress" 64
 	
 	if [ -d ~/RetroPie/saves ]
 	then
@@ -466,13 +405,13 @@ function 6LocalSAVEFILEDirectory ()
 		
 		updateStep "6a" "done" 72
 	else
-		printf "$(date +%FT%T%:z):\t6a moveFilesToDefault\tNOT FOUND\n" >> "${logfile}"
-		updateStep "6a" "not found" 72
+		printf "$(date +%FT%T%:z):\t4a moveFilesToDefault\tNOT FOUND\n" >> "${logfile}"
+		updateStep "4a" "not found" 72
 	fi
 	
-# 6b. Remove local SAVEFILE directory
-	printf "$(date +%FT%T%:z):\t6b removeLocalSAVEFILEbasedir\tSTART\n" >> "${logfile}"
-	updateStep "6b" "in progress" 72
+# 4b. Remove local SAVEFILE directory
+	printf "$(date +%FT%T%:z):\t4b removeLocalSAVEFILEbasedir\tSTART\n" >> "${logfile}"
+	updateStep "4b" "in progress" 72
 	
 	if [ -d ~/RetroPie/saves ]
 	then
@@ -506,27 +445,27 @@ function 6LocalSAVEFILEDirectory ()
 			# restart SAMBA service
 			sudo service smbd restart
 			
-			printf "$(date +%FT%T%:z):\t6b removeLocalSAVEFILEbasedir\tREMOVED network share\n" >> "${logfile}"
+			printf "$(date +%FT%T%:z):\t4b removeLocalSAVEFILEbasedir\tREMOVED network share\n" >> "${logfile}"
 		fi	
 
 		
-		printf "$(date +%FT%T%:z):\t6b removeLocalSAVEFILEbasedir\tDONE\n" >> "${logfile}"
-		updateStep "6b" "done" 80
+		printf "$(date +%FT%T%:z):\t4b removeLocalSAVEFILEbasedir\tDONE\n" >> "${logfile}"
+		updateStep "4b" "done" 80
 	else
-		printf "$(date +%FT%T%:z):\t6b removeLocalSAVEFILEbasedir\tNOT FOUND\n" >> "${logfile}"
-		updateStep "6b" "skipped" 80
+		printf "$(date +%FT%T%:z):\t4b removeLocalSAVEFILEbasedir\tNOT FOUND\n" >> "${logfile}"
+		updateStep "4b" "skipped" 80
 	fi
 	
-	printf "$(date +%FT%T%:z):\t6LocalSAVEFILEDirectory\tDONE\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t4LocalSAVEFILEDirectory\tDONE\n" >> "${logfile}"
 }
 
-function 7RetroArch ()
+function 5RetroArch ()
 {
-	printf "$(date +%FT%T%:z):\t7RetroArch\tSTART\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t5RetroArch\tSTART\n" >> "${logfile}"
 
 # 7a. Reset local SAVEFILE directories
-	printf "$(date +%FT%T%:z):\t7a resetSAVEFILEdirectories\tSTART\n" >> "${logfile}"
-	updateStep "7a" "in progress" 80
+	printf "$(date +%FT%T%:z):\t5a resetSAVEFILEdirectories\tSTART\n" >> "${logfile}"
+	updateStep "5a" "in progress" 80
 	
 	local found=0
 	
@@ -544,57 +483,57 @@ function 7RetroArch ()
 		# check if there'a system specific RETROARCH.CFG
 		if [ -f "${directory}/retroarch.cfg" ]
 		then
-			printf "$(date +%FT%T%:z):\t7a resetSAVEFILEdirectories\tFOUND retroarch.cfg for ${system}\n" >> "${logfile}"
+			printf "$(date +%FT%T%:z):\t5a resetSAVEFILEdirectories\tFOUND retroarch.cfg for ${system}\n" >> "${logfile}"
 			
 			# check if RETROARCH.CFG contains SAVEFILE pointing to ~/RetroPie/saves/<SYSTEM>
 			if [[ $(grep -c "^savefile_directory = \"~/RetroPie/saves/${system}\"" ${directory}/retroarch.cfg) -gt 0 ]]
 			then
-				printf "$(date +%FT%T%:z):\t7a resetSAVEFILEdirectories\tFOUND savefile_directory\n" >> "${logfile}"
+				printf "$(date +%FT%T%:z):\t5a resetSAVEFILEdirectories\tFOUND savefile_directory\n" >> "${logfile}"
 				found=$(($found + 1))
 				# replace parameter
 				sed -i "/^savefile_directory = \"~\/RetroPie\/saves\/${system}\"/c\savefile_directory = \"default\"" ${directory}/retroarch.cfg
-				printf "$(date +%FT%T%:z):\t7a resetSAVEFILEdirectories\tREPLACED savefile_directory\n" >> "${logfile}"
+				printf "$(date +%FT%T%:z):\t5a resetSAVEFILEdirectories\tREPLACED savefile_directory\n" >> "${logfile}"
 			else
-				printf "$(date +%FT%T%:z):\t7a resetSAVEFILEdirectories\tNOT FOUND savefile_directory\n" >> "${logfile}"
+				printf "$(date +%FT%T%:z):\t5a resetSAVEFILEdirectories\tNOT FOUND savefile_directory\n" >> "${logfile}"
 			fi
 			
 			# check if RETROARCH.CFG contains SAVESTATE pointing to ~/RetroPie/saves/<SYSTEM>
 			if [[ $(grep -c "^savestate_directory = \"~/RetroPie/saves/${system}\"" ${directory}/retroarch.cfg) -gt 0 ]]
 			then
-				printf "$(date +%FT%T%:z):\t7a resetSAVESTATEdirectories\tFOUND savestate_directory\n" >> "${logfile}"
+				printf "$(date +%FT%T%:z):\t5a resetSAVESTATEdirectories\tFOUND savestate_directory\n" >> "${logfile}"
 				found=$(($found + 1))
 				# replace parameter
 				sed -i "/^savestate_directory = \"~\/RetroPie\/saves\/${system}\"/c\savestate_directory = \"default\"" ${directory}/retroarch.cfg
-				printf "$(date +%FT%T%:z):\t7a resetSAVESTATEdirectories\tREPLACED savestate_directory\n" >> "${logfile}"
+				printf "$(date +%FT%T%:z):\t5a resetSAVESTATEdirectories\tREPLACED savestate_directory\n" >> "${logfile}"
 			else
-				printf "$(date +%FT%T%:z):\t7a resetSAVESTATEdirectories\tNOT FOUND savestate_directory\n" >> "${logfile}"
+				printf "$(date +%FT%T%:z):\t5a resetSAVESTATEdirectories\tNOT FOUND savestate_directory\n" >> "${logfile}"
 			fi
 		fi
 	done
 
-	printf "$(date +%FT%T%:z):\t7a resetSAVEFILEdirectories\tDINE\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t5a resetSAVEFILEdirectories\tDINE\n" >> "${logfile}"
 	if [[ $found -eq 0 ]]
 	then
-		updateStep "7a" "not found" 88
+		updateStep "5a" "not found" 88
 	else
-		updateStep "7a" "done" 88
+		updateStep "5a" "done" 88
 	fi
 
-	printf "$(date +%FT%T%:z):\t7RetroArch\tDONE\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t5RetroArch\tDONE\n" >> "${logfile}"
 }
 
-function 8Finalize ()
+function 6Finalize ()
 {
-	printf "$(date +%FT%T%:z):\t8Finalize\tSTART\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t6Finalize\tSTART\n" >> "${logfile}"
 
-# 8a. Remove UNINSTALL script
-	printf "$(date +%FT%T%:z):\t8a removeUNINSTALLscript\tSTART\n" >> "${logfile}"
-	updateStep "8a" "in progress" 88
+# 6a. Remove UNINSTALL script
+	printf "$(date +%FT%T%:z):\t6a removeUNINSTALLscript\tSTART\n" >> "${logfile}"
+	updateStep "6a" "in progress" 88
 	
-	printf "$(date +%FT%T%:z):\t8a removeUNINSTALLscript\tDONE\n" >> "${logfile}"
-	updateStep "8a" "done" 100
+	printf "$(date +%FT%T%:z):\t6a removeUNINSTALLscript\tDONE\n" >> "${logfile}"
+	updateStep "6a" "done" 100
 	
-	printf "$(date +%FT%T%:z):\t8Finalize\tDONE\n" >> "${logfile}"
+	printf "$(date +%FT%T%:z):\t6Finalize\tDONE\n" >> "${logfile}"
 	
 	# move LOGFILE to HOME
 	mv ~/scripts/rclone_script/rclone_script-uninstall.log ~

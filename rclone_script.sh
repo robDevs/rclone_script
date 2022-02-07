@@ -87,9 +87,20 @@ function showNotification ()
 	
 	if [ "$2" = "" ]
 	then
-		color="yelloW"
+		color=$(tput setaf 3)
 	else
-		color="$2"
+		if [ "$2" = "blue" ]
+		then
+			color=$BLUE
+		fi
+		if [ "$2" = "red" ]
+		then
+			color=$RED
+		fi
+		if [ "$2" = "green" ]
+		then
+			color=$GREEN
+		fi
 	fi
 
 	if [ "$3" = "" ]
@@ -113,16 +124,11 @@ function showNotification ()
 		posy="$5"
 	fi
 	
-	# create PNG using IMAGEMAGICK
-	convert -size 1500x32 xc:"rgba(0,0,0,0)" -type truecolormatte -gravity NorthWest \
-			-pointsize 32 -font FreeMono -style italic \
-			-fill ${color} -draw "text 0,0 '${message}'" \
-			PNG32:- > ~/scripts/rclone_script/rclone_script-notification.png
-	
 	killOtherNotification
-	
-	# show PNG using PNGVIEW
-	nohup pngview -b 0 -l 10000 ~/scripts/rclone_script/rclone_script-notification.png -x ${posx} -y ${posy} -t ${timeout} &>/dev/null &
+
+	printf "${color}$message$(tput sgr0)"
+	sleep 2s
+	clear	
 }
 
 function getROMFileName ()
