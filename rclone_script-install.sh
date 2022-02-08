@@ -767,9 +767,9 @@ function 5RemoteSAVEFILEDirectory ()
 	
 	5aCheckRemoteBaseDirectory
 	case $? in
-		0) updateStep "7a" "found" 85  ;;
-		1) updateStep "7a" "created" 85  ;;
-		255) updateStep "7a" "failed" 80  ;;
+		0) updateStep "5a" "found" 85  ;;
+		1) updateStep "5a" "created" 85  ;;
+		255) updateStep "5a" "failed" 80  ;;
 	esac
 
 # 5b. Check remote <system> directories

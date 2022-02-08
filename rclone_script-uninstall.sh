@@ -463,7 +463,7 @@ function 5RetroArch ()
 {
 	printf "$(date +%FT%T%:z):\t5RetroArch\tSTART\n" >> "${logfile}"
 
-# 7a. Reset local SAVEFILE directories
+# 5a. Reset local SAVEFILE directories
 	printf "$(date +%FT%T%:z):\t5a resetSAVEFILEdirectories\tSTART\n" >> "${logfile}"
 	updateStep "5a" "in progress" 80
 	
