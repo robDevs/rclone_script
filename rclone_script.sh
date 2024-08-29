@@ -268,6 +268,11 @@ function uploadSaves ()
 	log 2 "Stopped ${system}/${romfilename} "
 	log 2 "Uploading saves and states for ${system}/${romfilename} to ${remoteType}..."
 	showNotification "Uploading saves and states to ${remoteType}..."
+  showNotification "system: ${system}"
+  showNotification "rompath: ${rompath}"
+  showNotification "romfilename: ${romfilename}"
+  showNotification "romfilebase: ${romfilebase}"
+  showNotification "romfileext: ${romfileext}"
 	
 	getAvailableConnection
 	availableConnection=$?
@@ -283,7 +288,13 @@ function uploadSaves ()
 		return
 	fi
 
+  showNotification "filter: ${filter}"
 	localfiles=$(find ~/RetroPie/saves/${system} -type f -iname "${filter}.*")
+
+  if ["${system}" = "gc"]
+    localfiles=$(find ~/RetroPie/saves/${system}/**/* -type f -iname "${filter}.*")
+  fi
+  showNotification "localfiles: ${localfiles}"
 	
 	if [ "${localfiles}" = "" ]
 	then # no local files found
