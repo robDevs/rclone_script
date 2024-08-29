@@ -743,6 +743,16 @@ function 4bCheckLocalSystemDirectories ()
 				printf "$(date +%FT%T%:z):\t4bCheckLocalSystemDirectories\tCREATED directory ${system}\n" >> "${logfile}"
 				retval=1
 			fi
+
+			if [ "${system}" = "gc" ]
+			then
+			  if [ -d "/home/pi/.local/share/dolphin-emu/GC" ]
+			  then
+			    ln -s "/home/pi/.local/share/dolphin-emu/GC/USA" ~/RetroPie/saves/gc/USA
+			    ln -s "/home/pi/.local/share/dolphin-emu/GC/EUR" ~/RetroPie/saves/gc/EUR
+			    ln -s "/home/pi/.local/share/dolphin-emu/GC/JAP" ~/RetroPie/saves/gc/JAP
+			  fi
+			fi
 		else
 			# check if same SymLink exists in SAVES, create if necessary
 			if [ -L ~/RetroPie/saves/${system} ]
