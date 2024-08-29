@@ -17,14 +17,14 @@ UNDERLINE="\Zu"
 
 
 # global variables
-url="https://raw.githubusercontent.com/robDevs/rclone_script"
+url="https://raw.githubusercontent.com/KohlJary/rclone_script"
 branch="master"
 
 # configuration variables
 remotebasedir=""
 shownotifications=""
 
-backtitle="RCLONE_SCRIPT installer (https://github.com/robDevs/rclone_script)"
+backtitle="RCLONE_SCRIPT installer (https://github.com/KohlJary/rclone_script)"
 logfile=~/scripts/rclone_script/rclone_script-install.log
 
 
@@ -742,6 +742,16 @@ function 4bCheckLocalSystemDirectories ()
 				mkdir ~/RetroPie/saves/${system}
 				printf "$(date +%FT%T%:z):\t4bCheckLocalSystemDirectories\tCREATED directory ${system}\n" >> "${logfile}"
 				retval=1
+			fi
+
+			if [ "${system}" = "gc" ]
+			then
+			  if [ -d "/home/pi/.local/share/dolphin-emu/GC" ]
+			  then
+			    ln -s "/home/pi/.local/share/dolphin-emu/GC/USA" ~/RetroPie/saves/gc/USA
+			    ln -s "/home/pi/.local/share/dolphin-emu/GC/EUR" ~/RetroPie/saves/gc/EUR
+			    ln -s "/home/pi/.local/share/dolphin-emu/GC/JAP" ~/RetroPie/saves/gc/JAP
+			  fi
 			fi
 		else
 			# check if same SymLink exists in SAVES, create if necessary

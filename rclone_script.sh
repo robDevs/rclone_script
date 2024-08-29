@@ -225,8 +225,22 @@ function downloadSaves ()
 	fi
 	
 	# test for remote files
-	remotefiles=$(rclone lsf retropie:${remotebasedir}/${system} --include "${filter}.*")
-	retval=$?
+
+  if [ "${system}" == "gc" ]
+  then
+    gameid=$(file "${rom}" | grep -oE "[A-Z0-9]{6}")
+    if [ -z "${gameid}" ]
+    then
+      showNotification "unable to find game id"
+    else
+      saveid=$(file "${rom}" | grep -oE "[A-Z0-9]{6}" | sed -E 's/^([A-Z0-9]{4})([A-Z0-9]{2})/\2\-\1/')
+      remotefiles=$(rclone lsf -R --files-only retropie:${remotebasedir}/${system} --include "${saveid}*.gci")
+      retval=$?
+    fi
+  else
+    remotefiles=$(rclone lsf retropie:${remotebasedir}/${system} --include "${filter}.*")
+    retval=$?
+  fi
 	
 	if [ "${retval}" = "0" ]
 	then # no error with RCLONE
@@ -239,8 +253,14 @@ function downloadSaves ()
 			log 2 "Found remote files"
 			
 			# download saves and states to corresponding ROM
-			rclone copy retropie:${remotebasedir}/${system} ~/RetroPie/saves/${system} --include "${filter}.*" --update >> ${logfile}
-			retval=$?
+      if [ "${system}" == "gc" ]
+      then
+        rclone copy retropie:${remotebasedir}/${system} ~/RetroPie/saves/${system} --include "${saveid}*.gci" --update >> ${logfile}
+        retval=$?
+      else
+        rclone copy retropie:${remotebasedir}/${system} ~/RetroPie/saves/${system} --include "${filter}.*" --update >> ${logfile}
+        retval=$?
+      fi
 			
 			if [ "${retval}" = "0" ]
 			then
@@ -284,6 +304,18 @@ function uploadSaves ()
 	fi
 
 	localfiles=$(find ~/RetroPie/saves/${system} -type f -iname "${filter}.*")
+
+  if [ "${system}" == "gc" ]
+  then
+    gameid=$(file "${rom}" | grep -oE "[A-Z0-9]{6}")
+    if [ -z "${gameid}" ]
+    then
+      showNotification "unable to find game id"
+    else
+      filter=$(file "${rom}" | grep -oE "[A-Z0-9]{6}" | sed -E 's/^([A-Z0-9]{4})([A-Z0-9]{2})/\2\-\1/')
+      localfiles=$(grep --include=\*.gci -Rnlw '/home/pi/RetroPie/saves/gc/' -e "${gameid}")
+    fi
+  fi
 	
 	if [ "${localfiles}" = "" ]
 	then # no local files found
@@ -291,8 +323,14 @@ function uploadSaves ()
 		showNotification "Uploading saves and states to ${remoteType}... No local files found"
 	else # local files found
 		# upload saves and states to corresponding ROM
-		rclone copy ~/RetroPie/saves/${system} retropie:${remotebasedir}/${system} --include "${filter}.*" --update >> ${logfile}
-		retval=$?
+		if [ "${system}" = "gc" ]
+		then
+      rclone copy ~/RetroPie/saves/${system} retropie:${remotebasedir}/${system} --include "${filter}*.*" --copy-links --update >> ${logfile}
+      retval=$?
+		else
+      rclone copy ~/RetroPie/saves/${system} retropie:${remotebasedir}/${system} --include "${filter}.*" --update >> ${logfile}
+      retval=$?
+		fi
 		
 		if [ "${retval}" = "0" ]
 		then
@@ -304,7 +342,6 @@ function uploadSaves ()
 		fi
 	fi
 }
-
 
 function deleteFileFromRemote ()
 # deletes a file from the remote
